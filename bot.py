@@ -4,7 +4,10 @@ import asyncio
 import requests
 
 TOKEN = os.getenv("DISCORD_TOKEN")
+
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+
+
 
 async def main():
     intents = discord.Intents.default()
@@ -17,13 +20,34 @@ async def main():
             response = requests.get("https://uselessfacts.jsph.pl/random.json?language=en")
             fact = response.json().get("text", "Could not fetch a fact today 🤷")
 
+
+
+
             # Send it to the channel
             channel = client.get_channel(CHANNEL_ID)
-            await channel.send(f"🤔 Daily Fun Fact: {fact}")
+            await channel.send(f"{fact}")
+
+
+
+
+
+
+
+
 
 
         except Exception as e:
             print(f"Error: {e}")
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34,3 +58,7 @@ async def main():
     await client.start(TOKEN)
 
 asyncio.run(main())
+
+
+
+

@@ -1,64 +1,25 @@
 import discord
+from discord import app_commands
 import os
-import asyncio
 import requests
 
-TOKEN = os.getenv("DISCORD_TOKEN")
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+@client.event
+async def on_ready():
+    await tree.sync()  # syncs commands with Discord
+    print(f"Logged in as {client.user}")
 
+# Slash command: /fact
+@tree.command(name="fact", description="Get a random fun fact")
+async def fact(interaction: discord.Interaction):
+    response = requests.get("https://uselessfacts.jsph.pl/random.json?language=en")
+    if response.status_code == 200:
+        fact = response.json().get("text")
+        await interaction.response.send_message(f"{fact}")
+    else:
+        await interaction.response.send_message("⚠️ Couldn't fetch a fact right now!")
 
-
-async def main():
-    intents = discord.Intents.default()
-    client = discord.Client(intents=intents)
-
-    @client.event
-    async def on_ready():
-        try:
-            # Fetch a random fact from API
-            response = requests.get("https://uselessfacts.jsph.pl/random.json?language=en")
-            fact = response.json().get("text", "Could not fetch a fact today 🤷")
-
-
-
-
-            # Send it to the channel
-            channel = client.get_channel(CHANNEL_ID)
-            await channel.send(f"{fact}")
-
-
-
-
-
-
-
-
-
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        finally:
-            await client.close()  # Exit after sending
-
-    await client.start(TOKEN)
-
-asyncio.run(main())
-
-
-
-
+client.run(os.getenv("DISCORD_TOKEN"))
